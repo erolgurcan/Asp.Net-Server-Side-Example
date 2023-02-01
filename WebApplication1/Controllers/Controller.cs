@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Data;
 using WebApplication1.Model.Dto;
@@ -80,7 +81,7 @@ namespace WebApplication1.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpDelete("{id: int}", Name = "DeleteExample")]
+        [HttpDelete("{id:int}", Name = "DeleteExample")]
         public IActionResult DeleteExample(int id)
             {
             if (id == 0)
@@ -100,24 +101,51 @@ namespace WebApplication1.Controllers
             return NoContent();
             }
 
-        //[HttpPut("{id: int}", Name = "UpdateExample")]
-        //public IActionResult UpdateVilla(int id, [FromBody] DtoExample dtoExample)
-        //    {
-        //    if (dtoExample == null || id != dtoExample.Id)
-        //        {
-        //        return BadRequest();
-        //        }
-        //    var example = StoreExample.exampleList.FirstOrDefault(u => u.Id == id);
+        [HttpPut("{id:int}", Name = "UpdateExample")]
+        public IActionResult UpdateVilla(int id, [FromBody] DtoExample dtoExample)
+            {
+            if (dtoExample == null || id != dtoExample.Id)
+                {
+                return BadRequest();
+                }
+            var example = StoreExample.exampleList.FirstOrDefault(u => u.Id == id);
 
-        //    example.Name = dtoExample.Name;
-        //    example.Sqft = dtoExample.Sqft;
-        //    example.Occupancy = dtoExample.Occupancy;
+            example.Name = dtoExample.Name;
+            example.Sqft = dtoExample.Sqft;
+            example.Occupancy = dtoExample.Occupancy;
 
-        //    return NoContent();
+            return NoContent();
 
-        //    }
+            }
+
+        [HttpPatch("{id:int}", Name = "UpdatePartialExamplme")]
+        public IActionResult UpdatePartialExample(int id, JsonPatchDocument<DtoExample> dtoExample)
+            {
+
+            if (dtoExample == null || id != 0)
+                {
+                return BadRequest();
+                }
+            var example = StoreExample.exampleList.FirstOrDefault(u => u.Id == id);
+
+            if (example == null)
+                {
+                return BadRequest();
+                }
+
+            DtoExample.ApplyTo(example, ModelState);
+
+            if (!ModelState.IsValid)
+                {
+                return BadRequest();
+                }
+
+            return NoContent();
+            }
 
         }
+
+
 
 
 
